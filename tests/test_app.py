@@ -20,7 +20,7 @@ def test_exercicio_ola_mundo_em_html(client):
 # Exercicio 01 - Aula 03
 def test_update_user_should_return_not_found__exercicio(client):
     response = client.put(
-        '/users/666',
+        '/users/123/',
         json={
             'username': 'bob',
             'email': 'bob@example.com',
@@ -29,6 +29,16 @@ def test_update_user_should_return_not_found__exercicio(client):
     )
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'User not found'}
+
+# Exercicio 02 - Aula 03
+
+
+def test_delete_user_should_return_not_found__exercicio(client):
+    response = client.delete('/users/123/')
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
+
 
 # --- Outros Teste ---
 
