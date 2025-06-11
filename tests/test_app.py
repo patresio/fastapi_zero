@@ -1,13 +1,6 @@
 from http import HTTPStatus
 
-
-def test_read_root(client):
-    response = client.get('/')
-    assert response.status_code == HTTPStatus.OK
-    assert response.json() == {'message': 'Hello World'}
-
-
-# --- Exercicios das aulas ---
+from fastapi_zero.schemas import UserPublic
 
 
 # Exercicio 01 - Aula 02
@@ -17,26 +10,10 @@ def test_exercicio_ola_mundo_em_html(client):
     assert '<h1> Olá Mundo </h1>' in response.text
 
 
-# Exercicio 01 - Aula 03
-def test_update_user_should_return_not_found__exercicio(client):
-    response = client.put(
-        '/users/123/',
-        json={
-            'username': 'bob',
-            'email': 'bob@example.com',
-            'password': 'mynewpassword',
-        },
-    )
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'User not found'}
-
-
-# Exercicio 02 - Aula 03
-def test_delete_user_should_return_not_found__exercicio(client):
-    response = client.delete('/users/123/')
-
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'User not found'}
+def test_read_root(client):
+    response = client.get('/')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'Hello World'}
 
 
 # --- Outros Teste ---
@@ -57,41 +34,39 @@ def test_create_user(client):
     }
 
 
+def test_read_users(client):
+    response = client.get('/users/')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'users': []}
+
+
+def test_read_users_with_user(client, user):
+    user_schema = UserPublic.model_validate(user).model_dump()
+    response = client.get('/users/')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'users': [user_schema]}
+
+
 # Exercicio 03 - Aula 03
-def test_get_user_should_return_not_found__exercicio(client):
-    response = client.get('/users/666')
+def test_get_user_should_return_not_found__exercicio(client, user):
+    response = client.get('/users/666/')
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'User not found'}
 
 
-def test_get_user___exercicio(client):
-    response = client.get('/users/1')
+def test_get_user___exercicio(client, user):
+    response = client.get('/users/1/')
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'username': 'alice',
-        'email': 'alice@example.com',
+        'username': user.username,
+        'email': user.email,
         'id': 1,
     }
 
 
-# --- Outros Teste ---
-def test_read_users(client):
-    response = client.get('/users/')
-    assert response.status_code == HTTPStatus.OK
-    assert response.json() == {
-        'users': [
-            {
-                'username': 'alice',
-                'email': 'alice@example.com',
-                'id': 1,
-            }
-        ]
-    }
-
-
-def test_update_user(client):
+def test_update_user(client, user):
     response = client.put(
         '/users/1/',
         json={
@@ -108,11 +83,59 @@ def test_update_user(client):
     }
 
 
-def test_delete_user(client):
+def test_delete_user(client, user):
     response = client.delete('/users/1/')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'username': 'bobs',
-        'email': 'bobs@example.com',
-        'id': 1,
+        'message': 'User deleted',
     }
+
+
+# --- Exercicios das aulas ---
+
+
+# Exercicio 01 - Aula 03
+def test_update_user_should_return_not_found__exercicio(client, user):
+    response = client.put(
+        '/users/123/',
+        json={
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
+
+
+# Exercicio 02 - Aula 03
+def test_delete_user_should_return_not_found__exercicio(client, user):
+    response = client.delete('/users/123/')
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
+
+
+def test_update_integrity_error(client, user):
+    # inserindo fausto
+    client.post(
+        '/users',
+        json={
+            'username': 'fausto',
+            'email': 'fausto@example.com',
+            'password': 'secret',
+        },
+    )
+
+    # Alterando o user das fixtures para fausto
+    response = client.put(
+        f'/users/{user.id}',
+        json={
+            'username': 'fausto',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert response.json() == {'detail': 'Username or email already exists'}
