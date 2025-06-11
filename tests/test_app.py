@@ -34,6 +34,34 @@ def test_create_user(client):
     }
 
 
+def test_create_user_with_existing_username(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': user.username,
+            'email': 'newemail@example.com',
+            'password': 'password',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert response.json() == {'detail': 'Username already registered'}
+
+
+def test_create_user_with_existing_email(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'newuser',
+            'email': user.email,
+            'password': 'password',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert response.json() == {'detail': 'Email already registered'}
+
+
 def test_read_users(client):
     response = client.get('/users/')
     assert response.status_code == HTTPStatus.OK

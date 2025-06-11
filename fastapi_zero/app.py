@@ -40,7 +40,7 @@ def read_root():
 def create_user(user: UserSchema, session: Session = Depends(get_session)):
     db_user = session.scalar(
         select(User).where(
-            User.username == user.username or User.email == user.email
+            (User.username == user.username) | (User.email == user.email)
         )
     )
 
