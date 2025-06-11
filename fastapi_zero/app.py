@@ -74,6 +74,6 @@ def delete_user(user_id: int):
     if user_id > len(database) or user_id < 1:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail=f'User {user_id} not found',
+            detail='User not found',
         )
     return database.pop(user_id - 1)
