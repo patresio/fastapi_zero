@@ -61,7 +61,7 @@ def update_user(user_id: int, user: UserSchema):
     if user_id > len(database) or user_id < 1:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail=f'User {user_id} not found',
+            detail='User not found',
         )
     database[user_id - 1] = user_with_id
     return user_with_id
