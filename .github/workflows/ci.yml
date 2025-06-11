@@ -1,0 +1,53 @@
+# .github/workflows/ci.yml
+
+# Nome do workflow
+name: CI - Testes Python com Poetry e Taskipy
+
+# Gatilhos: Roda em todo pull request para o branch 'main'
+on:
+  pull_request:
+    branches: ['main']
+
+# Trabalhos a serem executados
+jobs:
+  test:
+    # Máquina virtual que será usada
+    runs-on: ubuntu-latest
+
+    # Passos do nosso job
+    steps:
+      # 1. Baixa o código do seu repositório
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente Python (ATUALIZADO PARA 3.13)
+      - name: Configurar Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      # 3. Instala o Poetry
+      - name: Instalar Poetry
+        run: |
+          pipx install poetry
+
+      # 4. Configura o cache para as dependências do Poetry
+      - name: Configurar cache do Poetry
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+
+      # 5. Instala as dependências do projeto
+      - name: Instalar dependências
+        run: |
+          poetry install --no-interaction --no-root
+
+      # 6. Roda os testes usando o comando do Taskipy (ATUALIZADO)
+      - name: Rodar os testes com Taskipy
+        run: |
+          poetry run task test
+
+      # 7. Envia o relatório de cobertura de testes
+      - name: Enviar relatório de cobertura de testes
+        uses: codecov/codecov-action@v3
