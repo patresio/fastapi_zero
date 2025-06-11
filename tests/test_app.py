@@ -7,6 +7,12 @@ def test_read_root(client):
     assert response.json() == {'message': 'Hello World'}
 
 
+def test_exercicio_ola_mundo_em_html(client):
+    response = client.get('/html')
+    assert response.status_code == HTTPStatus.OK
+    assert '<h1> Olá Mundo </h1>' in response.text
+
+
 def test_create_user(client):
     response = client.post(
         '/users/',
