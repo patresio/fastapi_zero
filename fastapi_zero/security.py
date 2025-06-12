@@ -11,13 +11,12 @@ from sqlalchemy.orm import Session
 
 from fastapi_zero.database import get_session
 from fastapi_zero.models import User
+from fastapi_zero.settings import Settings
 
-SECRET_KEY = 'secret'
-ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_DAYS = 1
+settings = Settings()
 
 pwd_context = PasswordHash.recommended()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 
 def get_password_hash(password: str):
@@ -32,12 +31,13 @@ def create_access_token(data: dict):
     to_encode = data.copy()
 
     expire = datetime.now(tz=ZoneInfo('America/Sao_Paulo')) + timedelta(
-        days=ACCESS_TOKEN_EXPIRE_DAYS
+        days=settings.ACCESS_TOKEN_EXPIRE_DAYS
     )
 
     to_encode.update({'exp': expire})
 
-    encode_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encode_jwt = encode(to_encode, settings.SECRET_KEY,
+                        algorithm=settings.ALGORITHM)
 
     return encode_jwt
 
@@ -52,7 +52,8 @@ def get_current_user(
         headers={'WWW-Authenticate': 'Bearer'},
     )
     try:
-        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = decode(token, settings.SECRET_KEY,
+                         algorithms=[settings.ALGORITHM])
         subject_email = payload.get('sub')
         if not subject_email:
             raise credentials_exception
