@@ -10,34 +10,46 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # [GEMINI] NOVA SEÇÃO ADICIONADA AQUI
-    # Define variáveis de ambiente para este job específico.
+    # Define variáveis de ambiente para este job.
     env:
-      DATABASE_URL: 'sqlite:///./test.db' # Usando um banco SQLite em arquivo para os testes
+      # Variáveis que já tínhamos:
+      DATABASE_URL: 'sqlite:///./test.db'
+
+      # [GEMINI] VARIÁVEIS NOVAS ADICIONADAS AQUI:
+      # Usamos valores simples, pois são apenas para o ambiente de teste.
+      SECRET_KEY: 'super-secret-key-for-testing-purposes-only'
+      ALGORITHM: 'HS256'
+      ACCESS_TOKEN_EXPIRE_DAYS: '7'
 
     steps:
+      # Passo 1: Checkout do código
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      # Passo 2: Configurar Python
       - name: Configurar Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
 
+      # Passo 3: Instalar Poetry
       - name: Instalar Poetry
         run: |
           pipx install poetry
 
+      # Passo 4: Configurar cache do Poetry
       - name: Configurar cache do Poetry
         uses: actions/cache@v4
         with:
           path: .venv
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
+      # Passo 5: Instalar dependências
       - name: Instalar dependências
         run: |
           poetry install --no-interaction --no-root
 
-      - name: Rodar os testes com Pytest
+      # Passo 6: Rodar os testes
+      - name: Rodar os testes com Taskipy
         run: |
           poetry run task test
