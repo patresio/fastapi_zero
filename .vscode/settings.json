@@ -1,5 +1,5 @@
 {
     "python.analysis.extraPaths": [
-        "tests"
+        "fastapi_zero"
     ]
 }
