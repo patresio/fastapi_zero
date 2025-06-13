@@ -10,46 +10,37 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # Define variáveis de ambiente para este job.
     env:
-      # Variáveis que já tínhamos:
-      DATABASE_URL: 'sqlite:///./test.db'
-
-      # [GEMINI] VARIÁVEIS NOVAS ADICIONADAS AQUI:
-      # Usamos valores simples, pois são apenas para o ambiente de teste.
+      # [GEMINI] CORREÇÃO APLICADA AQUI:
+      # Adicionamos '+aiosqlite' para dizer ao SQLAlchemy para usar o driver async.
+      DATABASE_URL: 'sqlite+aiosqlite:///./test.db'
       SECRET_KEY: 'super-secret-key-for-testing-purposes-only'
       ALGORITHM: 'HS256'
       ACCESS_TOKEN_EXPIRE_DAYS: '7'
 
     steps:
-      # Passo 1: Checkout do código
+      # ... (o resto do arquivo continua igual) ...
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # Passo 2: Configurar Python
       - name: Configurar Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
 
-      # Passo 3: Instalar Poetry
       - name: Instalar Poetry
-        run: |
-          pipx install poetry
+        run: pipx install poetry
 
-      # Passo 4: Configurar cache do Poetry
       - name: Configurar cache do Poetry
         uses: actions/cache@v4
         with:
           path: .venv
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
-      # Passo 5: Instalar dependências
       - name: Instalar dependências
         run: |
           poetry install --no-interaction --no-root
 
-      # Passo 6: Rodar os testes
-      - name: Rodar os testes com Taskipy
+      - name: Rodar os testes com Pytest
         run: |
           poetry run task test
