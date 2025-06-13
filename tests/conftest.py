@@ -15,7 +15,7 @@ from fastapi_zero.security import get_password_hash
 from fastapi_zero.settings import Settings
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(session):
     def get_session_override():
         return session
@@ -60,7 +60,7 @@ def _mock_db_time(*, model, time=datetime(2025, 5, 20)):
     event.remove(model, 'before_insert', fake_time_hook)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_db_time():
     return _mock_db_time
 
@@ -84,7 +84,7 @@ async def user(session: AsyncSession):
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def token(client, user):
     response = client.post(
         'auth/token',
@@ -97,6 +97,6 @@ def token(client, user):
     return response.json()['access_token']
 
 
-@pytest.fixture()
+@pytest.fixture
 def settings():
     return Settings()
