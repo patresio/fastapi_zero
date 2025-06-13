@@ -36,16 +36,7 @@ extend-exclude = ['migrations']
 
 [tool.ruff.lint]
 preview = true
-select = [
-    "F",    # Pyflakes (erros de lógica)
-    "E",    # pycodestyle (erros de estilo)
-    "W",    # pycodestyle (avisos de estilo)
-    "I",    # isort (organização de imports)
-    "UP",   # pyupgrade (sugestões para modernizar o código)
-    "PL",   # Pylint (muitas checagens de boas práticas)
-    "PT",   # flake8-pytest-style (boas práticas para testes)
-    "N",    # pep8-naming (validação de nomes de variáveis e funções)
-]
+select = ['I', 'F', 'E', 'W', 'PL', 'PT', 'FAST']
 
 [tool.ruff.format]
 preview = true
