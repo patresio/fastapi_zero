@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_zero.models import User
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_create_user(session: AsyncSession, mock_db_time):
     with mock_db_time(model=User) as time:
         new_user = User(
