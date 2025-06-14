@@ -2,6 +2,8 @@ from http import HTTPStatus
 
 from fastapi_zero.schemas import UserPublic
 
+NUMBER_OF_USERS_CREATED = 2
+
 
 def test_create_user(client):
     response = client.post(
@@ -57,7 +59,7 @@ def test_read_users(client, user, token):
     assert response.json() == {'users': [user_schema]}
 
 
-def test_get_user_should_return_not_found__exercicio(client, user, token):
+def test_read_user_by_id_not_found(client, token):
     response = client.get(
         '/users/666/', headers={'Authorization': f'Bearer {token}'}
     )
@@ -66,7 +68,7 @@ def test_get_user_should_return_not_found__exercicio(client, user, token):
     assert response.json() == {'detail': 'User not found'}
 
 
-def test_get_user___exercicio(client, user, token):
+def test_read_user_by_id_success(client, user, token):
     response = client.get(
         f'/users/{user.id}/', headers={'Authorization': f'Bearer {token}'}
     )
@@ -107,9 +109,9 @@ def test_delete_user(client, user, token):
     }
 
 
-def test_update_user_should_return_not_found__exercicio(client, user, token):
+def test_update_user_permission_denied(client, other_user, token):
     response = client.put(
-        '/users/123/',
+        f'/users/{other_user.id}/',
         headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'bob',
@@ -121,9 +123,10 @@ def test_update_user_should_return_not_found__exercicio(client, user, token):
     assert response.json() == {'detail': 'Not enough permissions'}
 
 
-def test_delete_user_should_return_not_found__exercicio(client, user, token):
+def test_delete_user_permission_denied(client, other_user, token):
     response = client.delete(
-        '/users/123/', headers={'Authorization': f'Bearer {token}'}
+        f'/users/{other_user.id}/',
+        headers={'Authorization': f'Bearer {token}'},
     )
 
     assert response.status_code == HTTPStatus.FORBIDDEN
@@ -152,3 +155,12 @@ def test_update_integrity_error(client, user, token):
 
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json() == {'detail': 'Username or email already exists'}
+
+
+def test_read_users_empty_list_with_offset(client, user, token):
+    response = client.get(
+        '/users/?limit=10&offset=5',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'users': []}
